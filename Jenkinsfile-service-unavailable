@@ -32,7 +32,7 @@ pipeline {
   post {
     failure {
       script {
-        tdr.postToDaTdrSlackChannel(colour: "good", message: "*Service Unavailable* Service ${params.SERVICE_TO_DEPLOY}  has failed to deploy on environment ${params.ENVIRONMENT}")
+        tdr.postToDaTdrSlackChannel(colour: "warning", message: "*Service Unavailable* Service ${params.SERVICE_TO_DEPLOY}  has failed to deploy on environment ${params.ENVIRONMENT}")
       }
     }
     success {
