@@ -1,0 +1,8 @@
+library("tdr-jenkinslib")
+
+deployToLambda(
+        stage: params.ENVIRONMENT,
+        libraryName: "service-unavailable",
+        version: params.TO_DEPLOY,
+        deploymentPackageName: "deployment.zip"
+)

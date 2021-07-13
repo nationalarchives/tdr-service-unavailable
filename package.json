@@ -1,0 +1,22 @@
+{
+  "name": "tdr-service-unavailable",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+     "build-css": "node-sass ./css-src/sass/main.scss static/main.css"
+   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nationalarchives/tdr-service-unavailable.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nationalarchives/tdr-service-unavailable/issues"
+  },
+  "homepage": "https://github.com/nationalarchives/tdr-service-unavailable#readme",
+  "dependencies": {
+    "govuk-frontend": "^3.13.0",
+    "node-sass": "^6.0.1"
+  }
+}
