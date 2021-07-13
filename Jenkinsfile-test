@@ -4,12 +4,11 @@ def repo = "tdr-service-unavailable"
 def versionTag = "v${env.BUILD_NUMBER}"
 
 pipeline {
-  agent none
+  agent {
+    label "master"
+  }
   stages {
     stage("Run git secrets") {
-      agent {
-        label "master"
-      }
       steps {
         script {
           tdr.runGitSecrets(repo)
@@ -17,9 +16,6 @@ pipeline {
       }
     }
     stage('Run tests') {
-      agent {
-        label "master"
-      }
       steps {
         script {
           sh "python3 -m venv venv"
@@ -51,9 +47,6 @@ pipeline {
     }
 
     stage("Create deployment zip") {
-      agent {
-        label "master"
-      }
       when {
         expression { env.BRANCH_NAME == "main"}
         beforeAgent true
