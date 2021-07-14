@@ -37,7 +37,11 @@ pipeline {
     }
     success {
       script {
-        tdr.postToDaTdrSlackChannel(colour: "good", message: "*Service Unavailable* Service ${params.SERVICE_TO_DEPLOY}  has been deployed on environment ${params.ENVIRONMENT}")
+        if(params.SERVICE_TO_DEPLOY == "ServiceUnavailable") {
+          tdr.postToDaTdrSlackChannel(colour: "good", message: "*Service Unavailable* The frontend has been switched to the Service Unavailable page on ${params.ENVIRONMENT}. Users can no longer access TDR.")
+        } else {
+          tdr.postToDaTdrSlackChannel(colour: "good", message: "The Service Unavailable page has been removed on ${params.ENVIRONMENT}. Users should be able to access TDR again.")
+        }
       }
     }
   }
