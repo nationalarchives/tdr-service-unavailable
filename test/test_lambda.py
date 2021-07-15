@@ -14,7 +14,10 @@ def test_url_with_path_returns_html():
         "httpMethod": "GET",
         "path": "/a/different/path"
     }
-    assert "Sorry, the service is unavailable" in lambda_handler(event, None)['body']
+
+    response = lambda_handler(event, None)
+    assert "Sorry, the service is unavailable" in response['body']
+    assert 503 == response['statusCode']
 
 
 def test_static_request_returns_static_file():
@@ -22,7 +25,10 @@ def test_static_request_returns_static_file():
         "httpMethod": "GET",
         "path": "/static/tna-horizontal-white-logo.svg"
     }
-    assert "<svg version=" in lambda_handler(event, None)['body']
+
+    response = lambda_handler(event, None)
+    assert "<svg version=" in response['body']
+    assert response['statusCode'] == 200
 
 
 def test_post_with_path_returns_html():
@@ -30,7 +36,10 @@ def test_post_with_path_returns_html():
         "httpMethod": "POST",
         "path": "/a/different/path"
     }
-    assert "Sorry, the service is unavailable" in lambda_handler(event, None)['body']
+
+    response = lambda_handler(event, None)
+    assert "Sorry, the service is unavailable" in response['body']
+    assert response['statusCode'] == 503
 
 
 def test_root_post_returns_html():
@@ -38,4 +47,6 @@ def test_root_post_returns_html():
         "httpMethod": "POST",
         "path": "/"
     }
-    assert "Sorry, the service is unavailable" in lambda_handler(event, None)['body']
+    response = lambda_handler(event, None)
+    assert "Sorry, the service is unavailable" in response['body']
+    assert response['statusCode'] == 503
