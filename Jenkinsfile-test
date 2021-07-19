@@ -1,0 +1,109 @@
+library("tdr-jenkinslib")
+
+def repo = "tdr-service-unavailable"
+def versionTag = "v${env.BUILD_NUMBER}"
+
+pipeline {
+  agent {
+    label "master"
+  }
+  stages {
+    stage("Run git secrets") {
+      steps {
+        script {
+          tdr.runGitSecrets(repo)
+        }
+      }
+    }
+    stage('Run tests') {
+      steps {
+        script {
+          sh "python3 -m venv venv"
+          sh "venv/bin/pip install -r requirements.txt"
+          sh "venv/bin/pip install -r requirements-test.txt"
+          sh "venv/bin/python -m pytest test"
+          sh "rm -r venv"
+        }
+      }
+    }
+
+    stage("Generate css") {
+      agent {
+        ecs {
+          inheritFrom "npm"
+        }
+      }
+      when {
+        expression { env.BRANCH_NAME == "main"}
+        beforeAgent true
+      }
+      steps {
+        script {
+          sh "npm ci"
+          sh "npm run build-css"
+          stash includes: "static/main.css", name: "main.css"
+        }
+      }
+    }
+
+    stage("Create deployment zip") {
+      when {
+        expression { env.BRANCH_NAME == "main"}
+        beforeAgent true
+      }
+      steps {
+        script {
+          unstash "main.css"
+          sh "./create_deployment_package.sh"
+          stash "deployment.zip"
+        }
+      }
+    }
+
+    stage("Upload deployment zip to s3") {
+      agent {
+        ecs {
+          inheritFrom "aws"
+          taskrole "arn:aws:iam::${env.MANAGEMENT_ACCOUNT}:role/TDRJenkinsNodeLambdaRoleIntg"
+        }
+      }
+      when {
+        expression { env.BRANCH_NAME == "main"}
+        beforeAgent true
+      }
+      steps {
+        script {
+          unstash "deployment.zip"
+          sh "aws s3 cp deployment.zip s3://tdr-backend-code-mgmt/${versionTag}/deployment.zip"
+
+          tdr.configureJenkinsGitUser()
+
+          sh "git tag ${versionTag}"
+          sshagent(['github-jenkins']) {
+            sh("git push origin ${versionTag}")
+          }
+        }
+        build(
+            job: "TDR Service Unavailable Deploy",
+            parameters: [
+                string(name: "ENVIRONMENT", value: "intg"),
+                string(name: "TO_DEPLOY", value: versionTag)
+            ],
+            wait: false)
+      }
+
+    }
+  }
+  post {
+    failure {
+      script {
+        tdr.reportFailedBuildToGitHub(repo, env.GIT_COMMIT)
+      }
+    }
+    success {
+      script {
+        tdr.reportSuccessfulBuildToGitHub(repo, env.GIT_COMMIT)
+      }
+    }
+  }
+}

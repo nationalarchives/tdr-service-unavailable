@@ -1,0 +1,7 @@
+//Service unavailable theme structure places assets in different structure to standard Gov.UK
+$govuk-images-path: './';
+
+@import 'overrides/all';
+
+@import 'node_modules/govuk-frontend/govuk/all';
+@import 'header';

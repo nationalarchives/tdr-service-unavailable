@@ -1,0 +1,48 @@
+library("tdr-jenkinslib")
+
+def repo = "tdr-service-unavailable"
+def versionTag = "v${env.BUILD_NUMBER}"
+
+pipeline {
+  agent {
+    label "master"
+  }
+  parameters {
+    choice(name: "ENVIRONMENT", choices: ["intg", "staging", "prod"], description: "The environment you are deploying Terraform changes to")
+    choice(name: "SERVICE_TO_DEPLOY", choices: ["ServiceUnavailable", "TDRApp"], description: "The app to forward load balancer requests to")
+  }
+
+  stages {
+    stage("Upload deployment zip to s3") {
+      agent {
+        ecs {
+          inheritFrom "aws"
+          taskrole "arn:aws:iam::${env.MANAGEMENT_ACCOUNT}:role/TDRJenkinsDeployServiceUnavailableRole${params.ENVIRONMENT.capitalize()}"
+        }
+      }
+      steps {
+        script {
+          def accountNumber = tdr.getAccountNumberFromStage(params.ENVIRONMENT)
+          sh "python3 /modify_alb_listener.py ${accountNumber} ${params.ENVIRONMENT} ${params.SERVICE_TO_DEPLOY}"
+
+        }
+      }
+    }
+  }
+  post {
+    failure {
+      script {
+        tdr.postToDaTdrSlackChannel(colour: "warning", message: "*Service Unavailable* Service ${params.SERVICE_TO_DEPLOY}  has failed to deploy on environment ${params.ENVIRONMENT}")
+      }
+    }
+    success {
+      script {
+        if(params.SERVICE_TO_DEPLOY == "ServiceUnavailable") {
+          tdr.postToDaTdrSlackChannel(colour: "good", message: "*Service Unavailable* The frontend has been switched to the Service Unavailable page on ${params.ENVIRONMENT}. Users can no longer access TDR.")
+        } else {
+          tdr.postToDaTdrSlackChannel(colour: "good", message: "The Service Unavailable page has been removed on ${params.ENVIRONMENT}. Users should be able to access TDR again.")
+        }
+      }
+    }
+  }
+}
