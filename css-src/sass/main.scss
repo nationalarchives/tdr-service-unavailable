@@ -3,5 +3,5 @@ $govuk-images-path: './';
 
 @import 'overrides/all';
 
-@import 'node_modules/govuk-frontend/govuk/all';
+@import '../../node_modules/govuk-frontend/govuk/all';
 @import 'header';
