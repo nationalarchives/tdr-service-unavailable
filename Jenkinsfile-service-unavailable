@@ -5,7 +5,7 @@ def versionTag = "v${env.BUILD_NUMBER}"
 
 pipeline {
   agent {
-    label "master"
+    label "built-in"
   }
   parameters {
     choice(name: "ENVIRONMENT", choices: ["intg", "staging", "prod"], description: "The environment you are deploying Terraform changes to")

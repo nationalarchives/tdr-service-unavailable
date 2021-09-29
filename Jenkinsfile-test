@@ -5,7 +5,7 @@ def versionTag = "v${env.BUILD_NUMBER}"
 
 pipeline {
   agent {
-    label "master"
+    label "built-in"
   }
   stages {
     stage("Run git secrets") {
