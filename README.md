@@ -19,7 +19,7 @@ This is the repository for the service unavailable page and the Jenkins files to
 `Jenkinsfile-service-unavailable` Switches the load balancer listener to either the front end target group or the service unavailable target group depending on the parameters.
 
 ### Running it locally
-You need to be running python 3
+1. You need to be running python 3
 
 Linux:
 ```bash
@@ -35,5 +35,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 python3 run_locally.py
 ```
+
+2. Run `npm install`
+
+3. then `npm run build` or `npm run build-css` (to build the css specifically)
+
 The page will be available on `http://localhost:8080`
 
