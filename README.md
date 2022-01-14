@@ -20,11 +20,20 @@ This is the repository for the service unavailable page and the Jenkins files to
 
 ### Running it locally
 You need to be running python 3
+
+Linux:
 ```bash
 python -m venv venv
 source venv/bin/activate
-pip install requirements.txt
+pip install -r requirements.txt
 python run_locally.py
+```
+Mac:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 run_locally.py
 ```
 The page will be available on `http://localhost:8080`
 
