@@ -13,6 +13,8 @@ on:
           - ServiceUnavailable
           - TDRApp
         type: choice
+permissions:
+  id-token: write
 jobs:
   run:
     runs-on: ubuntu-18.04
