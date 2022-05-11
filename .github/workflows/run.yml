@@ -32,4 +32,6 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.set-role-name.outputs.role-name }}
           aws-region: eu-west-2
           role-session-name: ModifyALBRole
-      - run: python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${{ github.event.inputs.environment }} ${{ github.event.inputs.service-to-deploy }}
+      - run: |
+          pip install boto3
+          python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${{ github.event.inputs.environment }} ${{ github.event.inputs.service-to-deploy }}
