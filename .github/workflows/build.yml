@@ -15,7 +15,7 @@ jobs:
       build-command: |
         npm ci
         npm run build-css
-        /create_deployment_package.sh
+        ./create_deployment_package.sh
     secrets:
       MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
       WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
@@ -24,6 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: gh workflow run deploy.yml -f environment=intg -f to-deploy=${{ needs.pre-deploy.outputs.next-version }}
+      - run: gh workflow run deploy.yml -f environment=intg -f to-deploy=${{ needs.pre-deploy.outputs.next-version }} --ref move-to-github-actions
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}

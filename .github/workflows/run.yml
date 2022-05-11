@@ -1,6 +1,5 @@
-name: TDR Deploy Checksum Lambda
+name: TDR Run Service Unavailable
 on:
-  push:
   workflow_dispatch:
     inputs:
       environment:
