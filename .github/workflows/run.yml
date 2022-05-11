@@ -17,14 +17,14 @@ permissions:
   id-token: write
 jobs:
   run:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     steps:
       - uses: actions/checkout@v3
       - id: set-role-name
         run: |
           env = "${{ github.event.inputs.environment }}"
-          print("::set-output name=role-name::TDRGithubActionsDeployServiceUnavailableRole" + env.title())
+          print(f"::set-output name=role-name::TDRGithubActionsDeployServiceUnavailableRole{env.title()}")
         shell: python
       - name: Configure AWS credentials for Lambda
         uses: aws-actions/configure-aws-credentials@v1
