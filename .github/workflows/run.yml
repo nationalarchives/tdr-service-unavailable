@@ -1,0 +1,32 @@
+name: TDR Deploy Checksum Lambda
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'intg'
+      service-to-deploy:
+        description: 'The app to forward load balancer requests to'
+        required: true
+        options:
+          - ServiceUnavailable
+          - TDRApp
+        type: choice
+jobs:
+  run:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-role-name
+        run: |
+          env = "${{ inputs.environment }}"
+          print(f"::set-output name=role-name::TDRGithubActionsDeployServiceUnavailableRole{env.title()}")
+      - name: Configure AWS credentials for Lambda
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.set-role-name.outputs.role-name }}
+          aws-region: eu-west-2
+          role-session-name: ModifyALBRole
+      - run: python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${{ github.event.inputs.environment }} ${{ github.event.inputs.service-to-deploy }}
