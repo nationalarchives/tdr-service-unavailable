@@ -12,7 +12,7 @@ jobs:
   test:
     uses: nationalarchives/tdr-github-actions/.github/workflows/tdr_test.yml@main
     with:
-      repo-name: tdr-checksum
+      repo-name: tdr-service-unavailable
       test-command: |
         pip install -r requirements.txt
         python -m pytest test
