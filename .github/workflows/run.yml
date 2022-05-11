@@ -18,6 +18,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-18.04
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - uses: actions/checkout@v3
       - id: set-role-name
