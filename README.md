@@ -12,11 +12,13 @@ This is the repository for the service unavailable page and the Jenkins files to
 
 `app.py` The bottle code for running the web server in lambda.
 
-`Jenkinsfile-deploy` The deploy Jenkins job for a lambda.
+`.github/workflows/build.yml` The GitHub actions job to build the css, create a zip file and upload it to S3.
 
-`Jenkinsfile-test` Runs the tests for branch builds. For the main branch, it builds the css and then creates a zip file and uploads it to S3.
+`.github/workflows/deploy.yml` The GitHub actions job to deploy the zip file to lambda.
 
-`Jenkinsfile-service-unavailable` Switches the load balancer listener to either the front end target group or the service unavailable target group depending on the parameters.
+`.github/workflows/test.yml` Runs the tests for branch builds.
+
+`.github/workflows/run.yml` Switches the load balancer listener to either the front end target group or the service unavailable target group depending on the parameters.
 
 ### Running it locally
 1. You need to be running python 3
