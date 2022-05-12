@@ -1,0 +1,55 @@
+name: TDR Run Service Unavailable
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'intg'
+      service-to-deploy:
+        description: 'The app to forward load balancer requests to'
+        required: true
+        options:
+          - ServiceUnavailable
+          - TDRApp
+        type: choice
+permissions:
+  id-token: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-role-name
+        run: |
+          env = "${{ github.event.inputs.environment }}"
+          print(f"::set-output name=role-name::TDRGithubActionsDeployServiceUnavailableRole{env.title()}")
+        shell: python
+      - name: Configure AWS credentials for Lambda
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.set-role-name.outputs.role-name }}
+          aws-region: eu-west-2
+          role-session-name: ModifyALBRole
+      - run: |
+          pip install boto3
+          python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${{ github.event.inputs.environment }} ${{ github.event.inputs.service-to-deploy }}
+      - name: Send failure message
+        if: failure()
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        with:
+          message: ":warning: *Service Unavailable* Service ${{ github.event.inputs.service-to-deploy }}  has failed to deploy on environment ${{ github.event.inputs.environment }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Send success message for service unavailable deploy
+        if: github.event.inputs.service-to-deploy == 'ServiceUnavailable'
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        with:
+          message: "*Service Unavailable* The frontend has been switched to the Service Unavailable page on ${{ github.event.inputs.environment }}. Users can no longer access TDR."
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Send success message for restoring TDR App
+        if: github.event.inputs.service-to-deploy == 'TDRApp'
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        with:
+          message: "The Service Unavailable page has been removed on ${{ github.event.inputs.environment }}. Users should be able to access TDR again."
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
