@@ -23,8 +23,10 @@ jobs:
       - uses: actions/checkout@v3
       - id: set-role-name
         run: |
+          import os
           env = "${{ github.event.inputs.environment }}"
-          print(f"::set-output name=role-name::TDRGithubActionsDeployServiceUnavailableRole{env.title()}")
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print(f"role-name=TDRGithubActionsDeployServiceUnavailableRole{env.title()}", file=fh)
         shell: python
       - name: Configure AWS credentials for Lambda
         uses: aws-actions/configure-aws-credentials@v1
