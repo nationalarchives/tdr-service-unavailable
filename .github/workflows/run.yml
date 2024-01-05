@@ -4,7 +4,12 @@ on:
     inputs:
       environment:
         description: 'Environment'
+        type: choice
         required: true
+        options:
+          - intg
+          - staging
+          - prod
         default: 'intg'
       service-to-deploy:
         description: 'The app to forward load balancer requests to'
