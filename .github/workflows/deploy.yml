@@ -11,21 +11,41 @@ on:
           - staging
           - prod
         default: 'intg'
-      to-deploy:
-        description: 'Version to deploy'
+      message:
+        type: choice
+        description: 'The message to be displayed'
         required: true
+        options:
+          - default
+          - xmas
+        default: 'default'
 
 permissions:
   id-token: write
   contents: write
 jobs:
+  pre-deploy:
+    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_build.yml@main
+    with:
+      repo-name: tdr-service-unavailable
+      artifact-name: deployment
+      artifact-file-type: zip
+      artifact-path: .
+      build-command: |
+        npm ci
+        npm run build-css
+        ./create_deployment_package.sh ${{ github.event.inputs.message }}
+    secrets:
+      MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+      WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
   deploy:
+    needs: pre-deploy
     uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_deploy.yml@main
     with:
       lambda-name: service-unavailable
       deployment-package: deployment.zip
       environment: ${{ github.event.inputs.environment }}
-      to-deploy: ${{ github.event.inputs.to-deploy }}
+      to-deploy: ${{ needs.pre-deploy.outputs.next-version }}
     secrets:
       ACCOUNT_NUMBER: ${{ secrets.ACCOUNT_NUMBER }}
       MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
