@@ -10,7 +10,6 @@ zip -r ../deployment.zip .
 cd ..
 
 if [ "$1" = "default" ]; then
-  cp views/default/index.html views/index.html
   zip -g deployment.zip views/index.html
 elif [ "$1" = "xmas" ]; then
   cp views/xmas/index.html views/index.html
