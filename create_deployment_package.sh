@@ -1,5 +1,5 @@
 if [ $# -eq 0 ]; then
-  echo "Please provide an argument (either 'index' or 'xmas')"
+  echo "Please provide an argument (either 'default' or 'xmas')"
   exit 1
 fi
 
@@ -15,7 +15,7 @@ elif [ "$1" = "xmas" ]; then
   cp views/xmas/index.html views/index.html
   zip -g deployment.zip views/index.html
 else
-  echo "Invalid argument. Please use 'index' or 'xmas'"
+  echo "Invalid argument. Please use 'default' or 'xmas'"
   exit 1
 fi
 
