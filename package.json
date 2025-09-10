@@ -17,6 +17,6 @@
   "homepage": "https://github.com/nationalarchives/tdr-service-unavailable#readme",
   "dependencies": {
     "govuk-frontend": "^4.10.1",
-    "sass": "^1.90.0"
+    "sass": "^1.92.1"
   }
 }
