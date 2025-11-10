@@ -44,19 +44,19 @@ jobs:
           python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${{ github.event.inputs.environment }} ${{ github.event.inputs.service-to-deploy }}
       - name: Send failure message
         if: failure()
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@1c56dd1e838340ab53c7dc55dbbb974a062a6ae9 # v0.0.6
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@5d4fee21ed08f053613a7706e28623c0adc0f5f4 # v0.0.10
         with:
           message: ":warning: *Service Unavailable* Service ${{ github.event.inputs.service-to-deploy }}  has failed to deploy on environment ${{ github.event.inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Send success message for service unavailable deploy
         if: github.event.inputs.service-to-deploy == 'ServiceUnavailable'
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@1c56dd1e838340ab53c7dc55dbbb974a062a6ae9 # v0.0.6
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@5d4fee21ed08f053613a7706e28623c0adc0f5f4 # v0.0.10
         with:
           message: "*Service Unavailable* The frontend has been switched to the Service Unavailable page on ${{ github.event.inputs.environment }}. Users can no longer access TDR."
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Send success message for restoring TDR App
         if: github.event.inputs.service-to-deploy == 'TDRApp'
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@1c56dd1e838340ab53c7dc55dbbb974a062a6ae9 # v0.0.6
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@5d4fee21ed08f053613a7706e28623c0adc0f5f4 # v0.0.10
         with:
           message: "The Service Unavailable page has been removed on ${{ github.event.inputs.environment }}. Users should be able to access TDR again."
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
