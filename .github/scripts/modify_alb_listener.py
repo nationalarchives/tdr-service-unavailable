@@ -14,6 +14,15 @@ frontend_load_balancer_arn = [lb for lb in load_balancers if lb["LoadBalancerNam
 listeners = client.describe_listeners(LoadBalancerArn=frontend_load_balancer_arn)["Listeners"]
 frontend_https_listener_arn = [li for li in listeners if alb_name in li["ListenerArn"]][0]["ListenerArn"]
 
+listener_rules = client.describe_rules(ListenerArn=frontend_https_listener_arn)["Rules"]
+
+# Retrieve all listener rules for ALB that are not default
+listener_rule_arns = []
+for lr in listener_rules:
+    if not lr["IsDefault"]:
+        arn = lr.get("RuleArn")
+        listener_rule_arns.append(arn)
+
 if service_to_deploy == "ServiceUnavailable":
     target_group_prefix = "tdr-su-"
 else:
@@ -22,13 +31,14 @@ else:
 target_groups = client.describe_target_groups()["TargetGroups"]
 target_group = [tg for tg in target_groups if tg["TargetGroupName"].startswith(target_group_prefix)][0]
 
-default_action = {
+change_target_group_action = {
     "Type": "forward",
-    "TargetGroupArn": target_group["TargetGroupArn"]
+    "TargetGroupArn": f"{target_group["TargetGroupArn"]}"
 }
-response = client.modify_listener(
-    ListenerArn=frontend_https_listener_arn,
-    Port=443,
-    Protocol="HTTPS",
-    DefaultActions=[default_action]
-)
+
+#Update non-default listener rules with the new target group
+for lra in listener_rule_arns:
+    response = client.modify_rule(
+        RuleArn=lra,
+        Actions=[change_target_group_action]
+    )
