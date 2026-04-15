@@ -3,9 +3,13 @@ on:
   push:
     branches:
       - main
+
+permissions: {}
+
 jobs:
   pre-deploy:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_build.yml@13faff54c193651ee30482ebdf01e083c8b14203 # v0.0.17
+    permissions: { contents: write, id-token: write }
+    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_build.yml@27efbc03aaaa9696eea85ab7a9363d6f92733471 # v0.0.34
     with:
       lambda-name: service-unavailable
       repo-name: tdr-service-unavailable
@@ -20,6 +24,7 @@ jobs:
       MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
       WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
   deploy:
+    permissions: { contents: write, id-token: write }
     needs: pre-deploy
     runs-on: ubuntu-latest
     steps:
