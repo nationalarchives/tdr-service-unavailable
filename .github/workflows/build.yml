@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+
+permissions: {}
+
 jobs:
   pre-deploy:
     permissions: { contents: write, id-token: write }
