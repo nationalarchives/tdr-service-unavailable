@@ -41,9 +41,8 @@ jobs:
           role-session-name: ModifyALBRole
       - run: |
           pip install boto3
-          python ./.github/scripts/modify_alb_listener.py ${{ env.ACCOUNT_NUMBER }} ${{ env.ENVIRONMENT }} ${{ env.SERVICE_TO_DEPLOY }}
+          python ./.github/scripts/modify_alb_listener.py ${{ secrets.ACCOUNT_NUMBER }} ${ENVIRONMENT} ${SERVICE_TO_DEPLOY}
         env:
-          ACCOUNT_NUMBER: ${{ secrets.ACCOUNT_NUMBER }}
           ENVIRONMENT: ${{ github.event.inputs.environment }}
           SERVICE_TO_DEPLOY: ${{ github.event.inputs.service-to-deploy }}
       - name: Send failure message
