@@ -23,17 +23,37 @@ for lr in listener_rules:
         arn = lr.get("RuleArn")
         listener_rule_arns.append(arn)
 
-if service_to_deploy == "ServiceUnavailable":
-    target_group_prefix = "tdr-su-"
-else:
-    target_group_prefix = "tdr-frontend-"
+target_groups = [
+    target_group
+    for page in client.get_paginator("describe_target_groups").paginate()
+    for target_group in page["TargetGroups"]
+]
 
-target_groups = client.describe_target_groups()["TargetGroups"]
-target_group = [tg for tg in target_groups if tg["TargetGroupName"].startswith(target_group_prefix)][0]
+if service_to_deploy == "ServiceUnavailable":
+    target_group = [tg for tg in target_groups if tg["TargetGroupName"].startswith("tdr-su-")][0]
+else:
+    matching_target_groups = []
+    for candidate in target_groups:
+        tag_descriptions = client.describe_tags(
+            ResourceArns=[candidate["TargetGroupArn"]]
+        )["TagDescriptions"]
+        if any(
+            tag["Key"] == "Name" and tag["Value"] == alb_name
+            for description in tag_descriptions
+            for tag in description["Tags"]
+        ):
+            matching_target_groups.append(candidate)
+
+    if len(matching_target_groups) != 1:
+        raise ValueError(
+            f"Expected exactly one frontend target group with Name tag "
+            f"'{alb_name}', found {len(matching_target_groups)}"
+        )
+    target_group = matching_target_groups[0]
 
 change_target_group_action = {
     "Type": "forward",
-    "TargetGroupArn": f"{target_group["TargetGroupArn"]}"
+    "TargetGroupArn": target_group["TargetGroupArn"]
 }
 
 #Update non-default listener rules with the new target group
