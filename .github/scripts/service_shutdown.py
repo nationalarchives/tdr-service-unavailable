@@ -6,8 +6,6 @@ import sys
 
 import boto3
 
-from app import service_unavailable
-
 
 def main():
     parser = argparse.ArgumentParser()
