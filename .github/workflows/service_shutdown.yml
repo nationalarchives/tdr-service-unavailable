@@ -1,5 +1,4 @@
 name: TDR Run Service Shutdown
-
 on:
   workflow_dispatch:
     inputs:
@@ -13,7 +12,7 @@ on:
           - staging
           - prod
       service-action:
-        description: 'The app to forward load balancer requests to'
+        description: 'Whether shutting down or restarting TDR'
         required: true
         options:
           - Shutdown
@@ -28,7 +27,6 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - name: Set role name
         id: role
         shell: python
